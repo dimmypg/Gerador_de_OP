@@ -38,7 +38,27 @@ def abrir_op():
     py.press("F6")#Salba
     py.hotkey("ctrl","p")#Abre o produto produzido
 
-def main():
-    abrir_op()
 
-main()
+def preencher_op(produto,quantidade):
+    py.click(196,231)
+    py.write(produto)
+    py.press("enter")
+    py.write(quantidade)
+    py.press("F6")
+    py.press("enter")
+    py.press("enter")
+    py.press("enter")
+    py.press("enter")
+    py.press("esc")
+
+
+# def main():
+    
+    
+
+# main()
+
+cod_questor = str(input("Informe o código Questor da peça produzida: "))
+quantidade = str(input("Informe quantidade de peças produzidas: "))
+
+preencher_op(cod_questor,quantidade)
