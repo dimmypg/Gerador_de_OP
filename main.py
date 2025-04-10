@@ -9,30 +9,14 @@ import time
 py.PAUSE = 0.5
 
         
-'''
-Questor
-Point(x=587, y=11)
-
-Estoque
-Point(x=203, y=33)
-
-Indústria
-Point(x=291, y=232)
-
-Ordem de produção
-Point(x=460, y=235)
-
-Campo Cliente
-Point(x=203, y=207)
-
-'''
-
 def abrir_op():
     py.click(587,11)#Questor
+    for i in range(5):
+        py.press("esc")
     py.click(203,33)#Estoque
     py.click(291,232)#Indústria
     py.click(460,235)#Ordem de produção
-    time.sleep(0.5)#Aguarda
+    time.sleep(1)#Aguarda
     py.click(203,207)#Campo Cliente
     py.write("7615")#Preenche o código da IPA
     py.press("F6")#Salba
@@ -52,13 +36,27 @@ def preencher_op(produto,quantidade):
     py.press("esc")
 
 
-# def main():
+def impressao():
+    py.click(196,231)
+    py.hotkey('ctrl','i')
+    py.press("enter")
+    time.sleep(5)
+    py.press('F11')
+    time.sleep(1)
+    py.press("enter")
+    time.sleep(1)
+    for i in range(5):
+        py.press("esc")
+
+
+def main():
+    cod_questor = str(input("Informe o código Questor da peça produzida: "))
+    quantidade = str(input("Informe quantidade de peças produzidas: "))
+
+    abrir_op()
+
+    preencher_op(cod_questor,quantidade)
     
-    
+    impressao()
 
-# main()
-
-cod_questor = str(input("Informe o código Questor da peça produzida: "))
-quantidade = str(input("Informe quantidade de peças produzidas: "))
-
-preencher_op(cod_questor,quantidade)
+main()
