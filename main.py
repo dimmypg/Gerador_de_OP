@@ -6,7 +6,17 @@ import time
 # pyautogui.click -> clicar em algum lugar da tela
 # pyautogui.hotkey -> combinação de teclas
 # pyautogui.scroll -> rola o scroll do mouse
-py.PAUSE = 0.5
+py.PAUSE = 0.9
+
+
+codigos = [
+    16115,16115,16115,16115,16115,16115,16084,
+    16084,16084,16084,16084
+    ]
+quantidades = [
+    200,200,200,200,200,200,200,200,200,200,200
+    ]
+
 
         
 def abrir_op():
@@ -19,12 +29,13 @@ def abrir_op():
     time.sleep(1)#Aguarda
     py.click(203,207)#Campo Cliente
     py.write("7615")#Preenche o código da IPA
-    py.press("F6")#Salba
-    py.hotkey("ctrl","p")#Abre o produto produzido
-
-
+    py.press("F6")#Salva
+    time.sleep(1)#Aguarda
+    
+    
 def preencher_op(produto,quantidade):
     py.click(196,231)
+    py.hotkey("ctrl","p")#Abre o produto produzido
     py.write(produto)
     py.press("enter")
     py.write(quantidade)
@@ -44,19 +55,24 @@ def impressao():
     py.press('F11')
     time.sleep(1)
     py.press("enter")
-    time.sleep(1)
-    for i in range(5):
+    time.sleep(3)
+    py.click(196,231)
+    for i in range(8):
         py.press("esc")
 
 
 def main():
-    cod_questor = str(input("Informe o código Questor da peça produzida: "))
-    quantidade = str(input("Informe quantidade de peças produzidas: "))
+    total = len(codigos)
+    for i, (codigo, quant) in enumerate(zip(codigos, quantidades), 1):
+        print(f"Processando {i}/{total} - Código: {codigo}, Quantidade: {quant}")
 
-    abrir_op()
+        cod_questor = str(codigo)
+        quantidade = str(quant)
 
-    preencher_op(cod_questor,quantidade)
-    
-    impressao()
+        abrir_op()
+
+        preencher_op(cod_questor,quantidade)
+        
+        impressao()
 
 main()
