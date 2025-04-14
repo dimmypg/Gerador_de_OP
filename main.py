@@ -6,14 +6,15 @@ import time
 # pyautogui.click -> clicar em algum lugar da tela
 # pyautogui.hotkey -> combinação de teclas
 # pyautogui.scroll -> rola o scroll do mouse
+
 py.PAUSE = 0.9
 
 
 codigos = [
-    10609
+    20601,18261
     ]
 quantidades = [
-    1
+    50,90
     ]
 
         
