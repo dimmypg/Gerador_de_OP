@@ -50,27 +50,41 @@ sheet = service.spreadsheets()
 
 NOME_ABA = "Solicitação de Produção"
 
-try:
-    # Lê os valores da planilha da aba desejada (colunas A até K)
-    result = sheet.values().get(
-        spreadsheetId=PLANILHA_GERAL,
-        range=f"{NOME_ABA}!A1:K"
-    ).execute()
+def coleta():
+    try:
+        # Preparando variáveis
+        codigos = []
+        quantidades = []
 
-    linhas = result.get("values", [])
 
-    # Percorrer as linhas (ignorando cabeçalho)
-    for i in range(1, len(linhas)):
-        linha = linhas[i]
+        # Lê os valores da planilha da aba desejada (colunas A até K)
+        result = sheet.values().get(
+            spreadsheetId=PLANILHA_GERAL,
+            range=f"{NOME_ABA}!A1:K"
+        ).execute()
 
-        # Verifica se a coluna K (índice 10) contém "TRUE"
-        if len(linha) > 10 and linha[10].strip().upper() == "TRUE":
-            valor_b = linha[1] if len(linha) > 1 else ""
-            valor_d = linha[3] if len(linha) > 3 else ""
+        linhas = result.get("values", [])
 
-            print(f"Rodando rotina com: {valor_b} e {valor_d}")
-            # 👉 Aqui vai sua rotina personalizada
-            # exemplo_rotina(valor_b, valor_d)
+        # Percorrer as linhas (ignorando cabeçalho)
+        for i in range(1, len(linhas)):
+            linha = linhas[i]
 
-except HttpError as erro:
-    print(f"Ocorreu um erro ao acessar a planilha: {erro}")
+            # Verifica se a coluna K (índice 10) contém "TRUE"
+            if (
+                len(linha) > 10 and linha[10].strip().upper() == "TRUE" and
+                (len(linha) <= 4 or not linha[4].strip())  # Coluna E vazia
+            ):
+                Questor = linha[1] if len(linha) > 1 else ""
+                QNT = linha[3] if len(linha) > 3 else ""
+
+                codigos.append(Questor)
+                quantidades.append(QNT)
+
+        return codigos, quantidades
+
+    except HttpError as erro:
+        print(f"Ocorreu um erro ao acessar a planilha: {erro}")
+
+codigos, quantidades = coleta()
+print(f'Códigos {codigos}')
+print(f'Quantidades {quantidades}')
