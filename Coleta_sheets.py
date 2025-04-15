@@ -71,7 +71,7 @@ def coleta():
 
             # Verifica se a coluna K (índice 10) contém "TRUE"
             if (
-                len(linha) > 10 and linha[10].strip().upper() == "TRUE" and
+                (len(linha) > 10 and linha[10].strip().upper() == "TRUE") and # Verifica a caixa 
                 (len(linha) <= 4 or not linha[4].strip())  # Coluna E vazia
             ):
                 Questor = linha[1] if len(linha) > 1 else ""
