@@ -146,6 +146,9 @@ def impressao():
 
 
 def main():
+
+    py.PAUSE = 0.9
+
     try:   
         colunas = ler_planilha()                    # Carrega a planilha
 
@@ -157,5 +160,17 @@ def main():
     except HttpError as erro:
         print(f"Ocorreu um erro ao acessar a planilha: {erro}")
 
+    total = len(codigos)
+    for i, (codigo, quant) in enumerate(zip(codigos, quantidades), 1):
+        print(f"Processando {i}/{total} - Código: {codigo}, Quantidade: {quant}")
+
+        cod_questor = str(codigo)
+        quantidade = str(quant)
+
+        # abrir_op()
+
+        # preencher_op(cod_questor,quantidade)
+        
+        # impressao()
 
 main()
