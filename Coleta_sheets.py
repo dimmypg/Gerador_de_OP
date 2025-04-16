@@ -139,7 +139,7 @@ def impressao():
     py.press("enter")
     time.sleep(5)
     py.press('F11')
-    time.sleep(1)
+    time.sleep(2)
     py.press("enter")
     time.sleep(3)
     py.click(196,231)
@@ -149,7 +149,7 @@ def impressao():
 
 def main():
 
-    py.PAUSE = 0.9
+    py.PAUSE = 1
 
     try:   
         colunas = ler_planilha()                    # Carrega a planilha
@@ -171,7 +171,6 @@ def main():
 
     except HttpError as erro:
         print(f"Ocorreu um erro ao acessar a planilha: {erro}")
-
 
 
 main()
