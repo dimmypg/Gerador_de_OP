@@ -155,24 +155,23 @@ def main():
         colunas = ler_planilha()                    # Carrega a planilha
 
         codigos, quantidades, nome = verificador(colunas) # Adiciona na lista
+        
+        total = len(codigos)
+        for i, (codigo, quant, nomes) in enumerate(zip(codigos, quantidades, nome), 1):
+            print(f"Processando {i}/{total} - Código: {codigo}, Quantidade: {quant}, Nome: {nomes}")
 
-        print(f'Códigos {codigos}')
-        print(f'Quantidades {quantidades}')     
+            cod_questor = str(codigo)
+            quantidade = str(quant)
+
+            abrir_op()
+
+            preencher_op(cod_questor,quantidade)
+            
+            impressao()  
 
     except HttpError as erro:
         print(f"Ocorreu um erro ao acessar a planilha: {erro}")
 
-    total = len(codigos)
-    for i, (codigo, quant, nomes) in enumerate(zip(codigos, quantidades, nome), 1):
-        print(f"Processando {i}/{total} - Código: {codigo}, Quantidade: {quant}, Nome: {nomes}")
 
-        cod_questor = str(codigo)
-        quantidade = str(quant)
-
-        # abrir_op()
-
-        # preencher_op(cod_questor,quantidade)
-        
-        # impressao()
 
 main()
