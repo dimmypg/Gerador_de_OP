@@ -85,7 +85,8 @@ def verificador(colunas):
     # Preparando variáveis
     codigos = []
     quantidades = []
-    
+    nome = []
+
         # Percorrer as colunas (ignorando cabeçalho)
     for i in range(1, len(colunas)):
         linha = colunas[i]
@@ -98,9 +99,10 @@ def verificador(colunas):
         ):
             
             codigos.append(linha[1])
+            nome.append(linha[2])
             quantidades.append(linha[3])
 
-    return codigos, quantidades
+    return codigos, quantidades, nome
 
 
 def abrir_op():
@@ -152,7 +154,7 @@ def main():
     try:   
         colunas = ler_planilha()                    # Carrega a planilha
 
-        codigos, quantidades = verificador(colunas) # Adiciona na lista
+        codigos, quantidades, nome = verificador(colunas) # Adiciona na lista
 
         print(f'Códigos {codigos}')
         print(f'Quantidades {quantidades}')     
@@ -161,8 +163,8 @@ def main():
         print(f"Ocorreu um erro ao acessar a planilha: {erro}")
 
     total = len(codigos)
-    for i, (codigo, quant) in enumerate(zip(codigos, quantidades), 1):
-        print(f"Processando {i}/{total} - Código: {codigo}, Quantidade: {quant}")
+    for i, (codigo, quant, nomes) in enumerate(zip(codigos, quantidades, nome), 1):
+        print(f"Processando {i}/{total} - Código: {codigo}, Quantidade: {quant}, Nome: {nomes}")
 
         cod_questor = str(codigo)
         quantidade = str(quant)
