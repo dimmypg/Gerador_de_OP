@@ -4,6 +4,15 @@
 import os.path
 import time
 import ctypes
+import pyautogui as py
+
+"""
+pyautogui.write -> escrever um texto
+pyautogui.press -> apertar 1 tecla
+pyautogui.click -> clicar em algum lugar da tela
+pyautogui.hotkey -> combinação de teclas
+pyautogui.scroll -> rola o scroll do mouse
+"""
 
 from datetime import datetime, timedelta
 from google.auth.transport.requests import Request
@@ -50,41 +59,103 @@ sheet = service.spreadsheets()
 
 NOME_ABA = "Solicitação de Produção"
 
-def coleta():
-    try:
-        # Preparando variáveis
-        codigos = []
-        quantidades = []
+
+def ler_planilha():
+    os.system('cls') # Limpa o terminal
+
+    # Lê os valores da planilha da aba desejada (colunas A até K)
+    result = sheet.values().get(
+        spreadsheetId=PLANILHA_GERAL,
+        range=f"{NOME_ABA}!A1:K"
+    ).execute()
+
+    linhas = result.get("values", [])        # Lê os valores da planilha da aba desejada (colunas A até K)
+    result = sheet.values().get(
+        spreadsheetId=PLANILHA_GERAL,
+        range=f"{NOME_ABA}!A1:K"
+    ).execute()
+
+    linhas = result.get("values", [])
+
+    return linhas
 
 
-        # Lê os valores da planilha da aba desejada (colunas A até K)
-        result = sheet.values().get(
-            spreadsheetId=PLANILHA_GERAL,
-            range=f"{NOME_ABA}!A1:K"
-        ).execute()
+def verificador(colunas):
 
-        linhas = result.get("values", [])
+    # Preparando variáveis
+    codigos = []
+    quantidades = []
+    
+        # Percorrer as colunas (ignorando cabeçalho)
+    for i in range(1, len(colunas)):
+        linha = colunas[i]
+       
+        if (                                                                # Verificadores:
+            (len(linha) > 10 and linha[10].strip().upper() == "TRUE") and   # Verifica a caixa na coluna K
+            (len(linha) <= 4 or not linha[4].strip()) and                   # Coluna E vazia
+            (linha[1].strip()) and                                          # Coluna B preenchida
+            (linha[3].strip())                                              # Coluna D preenchida
+        ):
+            
+            codigos.append(linha[1])
+            quantidades.append(linha[3])
 
-        # Percorrer as linhas (ignorando cabeçalho)
-        for i in range(1, len(linhas)):
-            linha = linhas[i]
+    return codigos, quantidades
 
-            # Verifica se a coluna K (índice 10) contém "TRUE"
-            if (
-                (len(linha) > 10 and linha[10].strip().upper() == "TRUE") and # Verifica a caixa 
-                (len(linha) <= 4 or not linha[4].strip())  # Coluna E vazia
-            ):
-                Questor = linha[1] if len(linha) > 1 else ""
-                QNT = linha[3] if len(linha) > 3 else ""
 
-                codigos.append(Questor)
-                quantidades.append(QNT)
+def abrir_op():
+    py.click(587,11)#Questor
+    for i in range(5):
+        py.press("esc")
+    py.click(203,33)#Estoque
+    py.click(291,232)#Indústria
+    py.click(460,235)#Ordem de produção
+    time.sleep(1)#Aguarda
+    py.click(203,207)#Campo Cliente
+    py.write("7615")#Preenche o código da IPA
+    py.press("F6")#Salva
+    time.sleep(1)#Aguarda
+    
+    
+def preencher_op(produto,quantidade):
+    py.click(196,231)
+    py.hotkey("ctrl","p")#Abre o produto produzido
+    py.write(produto)
+    py.press("enter")
+    py.write(quantidade)
+    py.press("F6")
+    py.press("enter")
+    py.press("enter")
+    py.press("enter")
+    py.press("enter")
+    py.press("esc")
 
-        return codigos, quantidades
+
+def impressao():
+    py.click(196,231)
+    py.hotkey('ctrl','i')
+    py.press("enter")
+    time.sleep(5)
+    py.press('F11')
+    time.sleep(1)
+    py.press("enter")
+    time.sleep(3)
+    py.click(196,231)
+    for i in range(8):
+        py.press("esc")
+
+
+def main():
+    try:   
+        colunas = ler_planilha()                    # Carrega a planilha
+
+        codigos, quantidades = verificador(colunas) # Adiciona na lista
+
+        print(f'Códigos {codigos}')
+        print(f'Quantidades {quantidades}')     
 
     except HttpError as erro:
         print(f"Ocorreu um erro ao acessar a planilha: {erro}")
 
-codigos, quantidades = coleta()
-print(f'Códigos {codigos}')
-print(f'Quantidades {quantidades}')
+
+main()
