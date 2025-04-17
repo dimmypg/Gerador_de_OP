@@ -1,3 +1,5 @@
+# pyinstaller --onefile --name="GerOP" --icon="automacao.ico" "GerOP.py"
+
 # =============================================================================
 # As 36 primeiras linhas NÃO devem ser alteradas
 # Início do programa (já fornecido)
