@@ -7,6 +7,10 @@ import os.path
 import time
 import ctypes
 import pyautogui as py
+import pygetwindow as gw
+import pyperclip
+import sys
+import win32gui
 
 """
 pyautogui.write -> escrever um texto
@@ -89,7 +93,7 @@ def verificador(colunas):
     quantidades = []
     nome = []
 
-        # Percorrer as colunas (ignorando cabeçalho)
+    # Percorrer as colunas (ignorando cabeçalho)
     for i in range(1, len(colunas)):
         linha = colunas[i]
        
@@ -107,46 +111,164 @@ def verificador(colunas):
     return codigos, quantidades, nome
 
 
-def abrir_op():
-    py.click(587,11)#Questor
-    for i in range(5):
-        py.press("esc")
-    py.click(203,33)#Estoque
-    py.click(291,232)#Indústria
-    py.click(460,235)#Ordem de produção
+def esperar_ate_aparecer(imagem, timeout=10, confidence=0.9, intervalo=0.5):
+    """
+    Tenta localizar a imagem na tela até o tempo limite (timeout).
+    """
+    start_time = time.time()
+    while True:
+        try:
+            pos = py.locateOnScreen(imagem, confidence=confidence)
+            if pos:
+                return pos
+        except py.ImageNotFoundException:
+            pass  # Não faz nada, apenas tenta de novo
+
+        if time.time() - start_time > timeout:
+            raise Exception(f"Imagem '{imagem}' não encontrada após {timeout} segundos.")
+        
+        time.sleep(intervalo)
+
+
+def clicar_quando_aparecer(imagem, timeout=5):
+    """
+    Espera a imagem aparecer e clica nela.
+    Se não encontrar dentro do timeout, lança uma exceção.
+    """
+    pos = esperar_ate_aparecer(imagem, timeout)
+    if pos:
+        py.click(pos)
+    else:
+        raise Exception(f"Imagem '{imagem}' não encontrada em {timeout} segundos.")
+    
+
+def clicar_dir_quando_aparecer(imagem, timeout=5):
+    """
+    Espera a imagem aparecer e clica com o clique direito nela.
+    Se não encontrar dentro do timeout, lança uma exceção.
+    """
+    pos = esperar_ate_aparecer(imagem, timeout)
+    if pos:
+        py.click(pos, button='right')
+    else:
+        raise Exception(f"Imagem '{imagem}' não encontrada em {timeout} segundos.")
+
+
+def abrir_op(lista_op):
+    clicar_quando_aparecer("Questor.png")
+    clicar_quando_aparecer("Estoque.png")
+    clicar_quando_aparecer("Industria.png")
+    clicar_quando_aparecer("Ordem_de_Producao.png")
     time.sleep(1)#Aguarda
-    py.click(203,207)#Campo Cliente
+    clicar_dir_quando_aparecer("NumeroOP.png")
+    clicar_quando_aparecer("Copiar.png")
+    num_op = pyperclip.paste().strip()
+    lista_op.append(num_op)
+    pyperclip.copy('')
+    py.press("tab")
     py.write("7615")#Preenche o código da IPA
     py.press("F6")#Salva
     time.sleep(1)#Aguarda
     
     
 def preencher_op(produto,quantidade):
-    py.click(196,231)
+    clicar_quando_aparecer("Questor.png")
     py.hotkey("ctrl","p")#Abre o produto produzido
+    esperar_ate_aparecer("Produto.png")
+    time.sleep(1)
     py.write(produto)
     py.press("enter")
     py.write(quantidade)
     py.press("F6")
     py.press("enter")
-    py.press("enter")
-    py.press("enter")
-    py.press("enter")
-    py.press("esc")
+    while True:
+        try:
+            esperar_ate_aparecer("OK.png",timeout= 2,confidence=0.5)
+            py.press('enter')
+            time.sleep(0.2)
+        except Exception:
+            py.press('esc')
+            break
 
 
 def impressao():
-    py.click(196,231)
+    clicar_quando_aparecer("Questor.png")
     py.hotkey('ctrl','i')
+    clicar_quando_aparecer("Gerar.png")
+    esperar_ate_aparecer("AguardaGerarOPParaImpressao.png",timeout=30)
+    time.sleep(0.5)
+    esperar_ate_aparecer("FolhaOPImpressao.png")
+    time.sleep(0.5)
+    clicar_quando_aparecer("Imprimir.png")
+    esperar_ate_aparecer("JanelaDeImpressao.png")
     py.press("enter")
-    time.sleep(5)
-    py.press('F11')
     time.sleep(2)
-    py.press("enter")
-    time.sleep(3)
-    py.click(196,231)
-    for i in range(8):
-        py.press("esc")
+
+    # AbrirPrograma('EPSON L380 Series')
+
+    # while True:
+    #     try:
+    #         if py.locateOnScreen("ImpressoraDesligada.png", confidence=1):
+    #             print("Impressora está desligada.\n\n")
+    #             input("Ligue e pressione Enter para continuar...")
+    #             time.sleep(0.5)
+    #             continue
+    #     except ImageNotFoundException:
+    #         pass
+
+    #     try:
+    #         if py.locateOnScreen("Imprimindo.png", confidence=0.95):
+    #             clicar_quando_aparecer("Questor.png")
+    #             break
+    #     except ImageNotFoundException:
+    #         pass
+
+    #     print("Nenhuma impressão detectada...")
+    #     time.sleep(0.5)
+
+
+def AbrirPrograma(titulo_parcial):
+
+    janelas = gw.getWindowsWithTitle(titulo_parcial)
+
+    if janelas:
+        janela = janelas[0]
+
+        # print(f"Janela encontrada: {janela.title}")
+
+        if janela.isMinimized:
+            janela.restore()
+        janela.maximize()
+        time.sleep(0.5)  # espera meio segundo
+
+        # Tenta usar win32gui para focar a janela
+        try:
+            win32gui.SetForegroundWindow(janela._hWnd)
+            # print("Janela ativada com win32gui.")
+        except Exception as e:
+            print(f"Erro ao ativar com win32gui: {e}")
+            # fallback para pygetwindow
+            try:
+                janela.activate()
+                # print("Janela ativada com pygetwindow.activate().")
+            except Exception as e2:
+                print(f"Erro ao ativar com pygetwindow: {e2}")
+
+    else:
+        print(f'Nenhuma janela encontrada com o nome: {titulo_parcial}')
+
+
+def fechar_janelas():
+    # os.system('cls')
+    # print("Fechando janelas...")
+
+    py.PAUSE = 1
+
+    clicar_quando_aparecer("Questor.png")
+    clicar_quando_aparecer("Janelas.png")
+    clicar_quando_aparecer("FecharTodasasJanelas.png")
+
+    # print("Janelas fechadas")
 
 
 def main():
@@ -157,20 +279,56 @@ def main():
         colunas = ler_planilha()                    # Carrega a planilha
 
         codigos, quantidades, nome = verificador(colunas) # Adiciona na lista
-        
+        for i, (codigo, quant, nomes) in enumerate(zip(codigos, quantidades, nome), 1):
+            
+            print(f"OP N°{i} - Cód. Questor: {codigo}, Quantidade: {quant}, Nome: {nomes}")
+
+        confirmador = input(f"\nDeseja continuar com a lista acima?\n\n[Enter] - Sim \n[Espaço + Enter] - Não\n\n")
+
+        if confirmador != "":
+
+            os.system('cls')
+            sys.exit()
+
+        os.system('cls')
+
         total = len(codigos)
-                
+      
+        lista_op = []
+
         for i, (codigo, quant, nomes) in enumerate(zip(codigos, quantidades, nome), 1):
             print(f"Gerando OP {i}/{total} - Cód. Questor: {codigo}, Quantidade: {quant}, Nome: {nomes}")
 
             cod_questor = str(codigo)
             quantidade = str(quant)
 
-            abrir_op()
+            AbrirPrograma('QUESTOR EMPRESARIAL 1-MZ RETIFICA DE MOTORES CNPJ: 94.748.894/0001-46')
+
+            fechar_janelas()
+
+            abrir_op(lista_op)
 
             preencher_op(cod_questor,quantidade)
             
             impressao()  
+
+        fechar_janelas()
+
+        os.system('cls')
+
+        codigos, quantidades, nome = verificador(colunas) # Adiciona na lista
+        for i, (lista,codigo, quant, nomes) in enumerate(zip(lista_op,codigos, quantidades, nome), 1):
+            
+            print(f"OP N°{lista} - Cód. Questor: {codigo}, Quantidade: {quant}, Nome: {nomes}")
+
+
+        encerrador = input(f"\n\nPressione Enter para encerrar...")
+
+        if encerrador != "":
+
+            os.system('cls')
+            sys.exit()
+
 
         if total == 0:
             print("\nTodas as OP's foram geradas!\n")
