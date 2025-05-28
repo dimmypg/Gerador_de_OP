@@ -45,3 +45,4 @@ if janelas:
     janela.activate()         # Traz para frente
 else:
     print(f"Nenhuma janela encontrada com o título: {titulo}")
+# EPSON L380 Series
