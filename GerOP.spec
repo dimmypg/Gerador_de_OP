@@ -2,11 +2,11 @@
 
 
 a = Analysis(
-    ['GerOP copy.py'],
+    ['GerOP.py'],
     pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=['pyscreeze', 'PIL', 'opencv-python'],
+    hiddenimports=['PIL', 'cv2', 'pyscreeze'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

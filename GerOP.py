@@ -199,32 +199,20 @@ def impressao():
     time.sleep(0.5)
     esperar_ate_aparecer("FolhaOPImpressao.png")
     time.sleep(0.5)
-    clicar_quando_aparecer("Imprimir.png")
-    esperar_ate_aparecer("JanelaDeImpressao.png")
+    max_tentativas = 2
+    for tentativa in range(max_tentativas):
+        clicar_quando_aparecer("Imprimir.png")
+        try:
+            esperar_ate_aparecer("JanelaDeImpressao.png")
+            break # Continua o programa se aparecer a janela
+        except Exception as e:
+            print(f"Tentativa {tentativa + 1} falhou: {e}")
+            if tentativa == max_tentativas - 1:
+                raise # Se atingir o máximo de tentativas, relança o erro.
+            time.sleep(0.5)
     py.press("enter")
     time.sleep(2)
 
-    # AbrirPrograma('EPSON L380 Series')
-
-    # while True:
-    #     try:
-    #         if py.locateOnScreen("ImpressoraDesligada.png", confidence=1):
-    #             print("Impressora está desligada.\n\n")
-    #             input("Ligue e pressione Enter para continuar...")
-    #             time.sleep(0.5)
-    #             continue
-    #     except ImageNotFoundException:
-    #         pass
-
-    #     try:
-    #         if py.locateOnScreen("Imprimindo.png", confidence=0.95):
-    #             clicar_quando_aparecer("Questor.png")
-    #             break
-    #     except ImageNotFoundException:
-    #         pass
-
-    #     print("Nenhuma impressão detectada...")
-    #     time.sleep(0.5)
 
 
 def AbrirPrograma(titulo_parcial):
@@ -264,7 +252,13 @@ def fechar_janelas():
 
     py.PAUSE = 1
 
-    clicar_quando_aparecer("Questor.png")
+    try:
+        clicar_quando_aparecer("Questor.png")
+    except Exception as e:
+        AbrirPrograma('QUESTOR EMPRESARIAL 1-MZ RETIFICA DE MOTORES CNPJ: 94.748.894/0001-46')
+        clicar_quando_aparecer("Questor.png")
+        time.sleep(0.5)
+
     clicar_quando_aparecer("Janelas.png")
     clicar_quando_aparecer("FecharTodasasJanelas.png")
 

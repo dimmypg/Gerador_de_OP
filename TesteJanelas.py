@@ -32,7 +32,7 @@ for w in gw.getWindowsWithTitle(''):
 time.sleep(3)
 
 # Substitua pelo nome (ou parte) do título da janela que deseja restaurar
-titulo = 'Bloco de Notas'  # exemplo
+titulo = 'WhatsApp'  # exemplo
 
 # Encontra a primeira janela que contém o título
 janelas = gw.getWindowsWithTitle(titulo)
