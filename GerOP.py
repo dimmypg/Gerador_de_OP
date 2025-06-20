@@ -1,4 +1,4 @@
-# pyinstaller --onefile --name="GerOP" --icon="automacao.ico" "GerOP.py"
+# pyinstaller --onefile --name="GerOP" --icon="automacao.ico" --hidden-import=PIL --hidden-import=cv2 --hidden-import=pyscreeze "GerOP.py"
 
 # =============================================================================
 # As 36 primeiras linhas NÃO devem ser alteradas
@@ -126,7 +126,7 @@ def esperar_ate_aparecer(imagem, timeout=10, confidence=0.9, intervalo=0.5):
 
         if time.time() - start_time > timeout:
             raise Exception(f"Imagem '{imagem}' não encontrada após {timeout} segundos.")
-        
+            
         time.sleep(intervalo)
 
 
@@ -187,15 +187,44 @@ def preencher_op(produto,quantidade):
             py.press('enter')
             time.sleep(0.2)
         except Exception:
+            time.sleep(0.5)
             py.press('esc')
             break
+
+
+def esperar_enquanto_aparecer(imagem, intervalo=0.5, timeout=None, confidence=0.9):
+    """
+    Espera enquanto uma imagem estiver presente na tela.
+
+    :param imagem: Nome do arquivo da imagem.
+    :param intervalo: Tempo (em segundos) entre cada verificação.
+    :param timeout: Tempo máximo (em segundos) para aguardar. Se None, espera indefinidamente.
+    :param confidence: Precisão da detecção da imagem (padrão 0.9).
+    """
+    inicio = time.time()
+
+    while True:
+        try:
+            if not py.locateOnScreen(imagem, confidence=confidence):
+                break
+        except py.ImageNotFoundException:
+            break  # Se não encontrou, sai do loop
+        except Exception as e:
+            print(f"Erro inesperado durante a busca da imagem '{imagem}': {e}")
+            break
+
+        if timeout and (time.time() - inicio) > timeout:
+            raise Exception(f"A imagem '{imagem}' ficou tempo demais na tela (>{timeout}s).")
+
+        time.sleep(intervalo)
+
 
 
 def impressao():
     clicar_quando_aparecer("Questor.png")
     py.hotkey('ctrl','i')
     clicar_quando_aparecer("Gerar.png")
-    esperar_ate_aparecer("AguardaGerarOPParaImpressao.png",timeout=30)
+    esperar_enquanto_aparecer("AguardaGerarOPParaImpressao.png")
     time.sleep(0.5)
     esperar_ate_aparecer("FolhaOPImpressao.png")
     time.sleep(0.5)
@@ -212,7 +241,6 @@ def impressao():
             time.sleep(0.5)
     py.press("enter")
     time.sleep(2)
-
 
 
 def AbrirPrograma(titulo_parcial):
@@ -300,7 +328,7 @@ def main():
 
             fechar_janelas()
 
-            abrir_op(lista_op)
+            abrir_op(lista_op)            
 
             preencher_op(cod_questor,quantidade)
             
